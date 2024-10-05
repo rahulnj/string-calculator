@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './Calculator.css';
 
+const DEFAULT_DELIMITER = /[,\n]/;
+
 const Calculator: React.FC = () => {
     const [input, setInput] = useState<string>('');
     const [result, setResult] = useState<number | null>(null);
@@ -14,12 +16,34 @@ const Calculator: React.FC = () => {
         setResult(result);
     };
 
+    function extractCustomDelimiter(lines: string[]): RegExp {
+        const delimiterLine = lines[0];
+        const customDelimiterMatch = delimiterLine.match(/\/\/(.+)/);
+        if (customDelimiterMatch) {
+            const customDelimiter = customDelimiterMatch[1].trim();
+            return new RegExp(customDelimiter, 'g');
+
+        }
+        return DEFAULT_DELIMITER;
+    }
+
     function add(input: string): number {
         try {
-            const sanitizedInput = input.replace(/\n/g, ',');
-            const numbers = sanitizedInput.split(',').map(Number);
-            if (numbers.some(isNaN)) throw new Error('Invalid input');
-            const sum = numbers.reduce((acc, num) => acc + num, 0);
+            const lines = input.split('\n');
+
+            let delimiter = DEFAULT_DELIMITER;
+            if (lines[0].startsWith('//')) {
+                delimiter = extractCustomDelimiter(lines)
+                lines.shift();
+            }
+
+            const numbers = lines.join(',').split(delimiter);
+            const cleanedNumbers = numbers
+                .filter(num => num.trim() !== '')
+                .map(num => Number(num.replace(/^,/, '').trim()));
+
+            if (cleanedNumbers.some(isNaN)) throw new Error('Invalid input');
+            const sum = cleanedNumbers.reduce((sumAcc, num) => sumAcc + num, 0);
             return sum;
         } catch (error) {
             alert('Invalid input');
@@ -38,7 +62,7 @@ const Calculator: React.FC = () => {
                 <textarea
                     value={input}
                     onChange={handleInputChange}
-                    placeholder="Enter numbers to add (e.g. 1\n2,3)"
+                    placeholder="Enter numbers to add (e.g. //;\n1;\n2;)"
                     className="input"
                 />
                 <button onClick={handleCalculate} className="add-button">Add</button>
