@@ -14,8 +14,6 @@ A simple calculator application that allows users to input numbers and calculate
 
 To run this application locally, follow these steps:
 
-1. Clone the repository:
-
    ```bash
    git clone https://github.com/rahulnj/string-calculator.git
    cd string-calculator
