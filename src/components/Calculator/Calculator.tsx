@@ -11,8 +11,8 @@ const Calculator: React.FC = () => {
         setResult(null);
     };
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setInput(event.target.value);
+    const handleInputChange = ({ target: { value } }: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setInput(value);
     };
 
     const handleCalculate = () => {
