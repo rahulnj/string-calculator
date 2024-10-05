@@ -61,6 +61,27 @@ describe('Calculator', () => {
         expect(window.alert).toHaveBeenCalledWith('Invalid input');
     });
 
+    test('throws an error when input contains negative numbers (single and multiple)', () => {
+        render(<Calculator />);
+        const input = screen.getByPlaceholderText(/Enter numbers to add/i);
+        const addButton = screen.getByText(/Add/i);
+
+        fireEvent.change(input, { target: { value: '1,-2,3' } });
+        fireEvent.click(addButton);
+        expect(screen.getByText(/Sum: 0/i)).toBeInTheDocument();
+        expect((window.alert as jest.Mock).mock.calls.length).toBe(1);
+        expect(window.alert).toHaveBeenCalledWith('Negative numbers not allowed: -2');
+
+        fireEvent.change(input, { target: { value: '' } });
+        (window.alert as jest.Mock).mockClear();
+
+        fireEvent.change(input, { target: { value: '1,-2,3,-4' } });
+        fireEvent.click(addButton);
+        expect(screen.getByText(/Sum: 0/i)).toBeInTheDocument();
+        expect((window.alert as jest.Mock).mock.calls.length).toBe(1);
+        expect(window.alert).toHaveBeenCalledWith('Negative numbers not allowed: -2, -4');
+    });
+
     test('clears the input field and result when Clear button is clicked', () => {
         render(<Calculator />);
         const input = screen.getByPlaceholderText(/Enter numbers to add/i);

@@ -27,6 +27,17 @@ const Calculator: React.FC = () => {
         return DEFAULT_DELIMITER;
     }
 
+    function validateNumbers(numbers: number[]): void {
+        if (numbers.some(isNaN)) {
+            throw new Error('Invalid input');
+        }
+
+        const negativeNumbers = numbers.filter(num => num < 0);
+        if (negativeNumbers.length > 0) {
+            throw new Error(`Negative numbers not allowed: ${negativeNumbers.join(', ')}`);
+        }
+    }
+
     function add(input: string): number {
         try {
             const lines = input.split('\n');
@@ -42,11 +53,16 @@ const Calculator: React.FC = () => {
                 .filter(num => num.trim() !== '')
                 .map(num => Number(num.replace(/^,/, '').trim()));
 
-            if (cleanedNumbers.some(isNaN)) throw new Error('Invalid input');
+            validateNumbers(cleanedNumbers);
+
             const sum = cleanedNumbers.reduce((sumAcc, num) => sumAcc + num, 0);
             return sum;
         } catch (error) {
-            alert('Invalid input');
+            if (error instanceof Error) {
+                alert(error?.message);
+            } else {
+                alert('An unknown error occurred');
+            }
             return 0;
         }
     }
