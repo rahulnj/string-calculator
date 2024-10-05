@@ -5,23 +5,25 @@ const Calculator: React.FC = () => {
     const [input, setInput] = useState<string>('');
     const [result, setResult] = useState<number | null>(null);
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setInput(event.target.value);
     };
 
     const handleCalculate = () => {
-        add(input);
+        const result = add(input);
+        setResult(result);
     };
 
-    function add(input: string): void {
+    function add(input: string): number {
         try {
-            const numbers = input.split(',').map(Number);
+            const sanitizedInput = input.replace(/\n/g, ',');
+            const numbers = sanitizedInput.split(',').map(Number);
             if (numbers.some(isNaN)) throw new Error('Invalid input');
             const sum = numbers.reduce((acc, num) => acc + num, 0);
-            setResult(sum);
+            return sum;
         } catch (error) {
-            setResult(null);
             alert('Invalid input');
+            return 0;
         }
     }
 
@@ -33,11 +35,10 @@ const Calculator: React.FC = () => {
     return (
         <div className="calculator">
             <div className="display">
-                <input
-                    type="text"
+                <textarea
                     value={input}
                     onChange={handleInputChange}
-                    placeholder="Enter numbers to add"
+                    placeholder="Enter numbers to add (e.g. 1\n2,3)"
                     className="input"
                 />
                 <button onClick={handleCalculate} className="add-button">Add</button>
